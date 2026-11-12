@@ -61,7 +61,7 @@
   }
 
   /* ---------- Hero ---------- */
-  header{padding:148px 0 84px}
+  header{position:relative; padding:148px 0 84px}
   .kicker{
     display:inline-block; font-size:.8rem; font-weight:700; letter-spacing:.16em;
     text-transform:uppercase; color:var(--gold);
@@ -190,10 +190,16 @@
     font-size:clamp(1.6rem, 5vw, 4.75rem); line-height:.86; letter-spacing:-.02em;
     color:transparent; -webkit-text-stroke:1.5px rgba(201,162,39,.38);
     white-space:nowrap; overflow:hidden; user-select:none; margin:34px 0 0; text-align:center;
-    transition:color .4s ease; will-change:transform;
+    position:relative; z-index:1; transition:color .4s ease; will-change:transform;
   }
   .giant-name:hover{color:rgba(201,162,39,.10)}
   .giant-name .fill{color:var(--gold); -webkit-text-stroke:0}
+  /* Faint gold contour lines behind the hero (Norris contour-line background, gold on navy) */
+  .contours{position:absolute; inset:0; width:100%; height:100%; pointer-events:none; z-index:0}
+  .contours path{fill:none; stroke:rgba(201,162,39,.10); stroke-width:1.2}
+  .contours path:nth-child(even){stroke:rgba(243,217,164,.07)}
+  /* Scroll-split hero: top block lifts away from the giant name on scroll */
+  .hero-top{position:relative; z-index:1; will-change:transform,opacity}
   /* Marquee ticker — kinetic strip, Norris-style */
   .ticker{
     border-top:1px solid rgba(201,162,39,.35); border-bottom:1px solid rgba(201,162,39,.35);
@@ -243,6 +249,16 @@
 
 <div class="wrap" id="top">
   <header>
+    <svg class="contours" viewBox="0 0 1200 760" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <path d="M 250 380 C 240 220, 420 110, 620 120 C 820 130, 990 230, 980 380 C 970 530, 800 640, 610 630 C 420 620, 260 540, 250 380 Z"/>
+      <path d="M 300 380 C 295 255, 450 165, 625 172 C 800 179, 930 270, 922 385 C 914 500, 770 590, 605 582 C 440 574, 305 505, 300 380 Z"/>
+      <path d="M 355 378 C 350 285, 480 215, 630 220 C 780 225, 875 305, 868 388 C 861 470, 740 540, 600 534 C 465 528, 360 468, 355 378 Z"/>
+      <path d="M 410 376 C 408 315, 510 258, 632 262 C 752 266, 822 330, 816 388 C 810 448, 712 495, 598 490 C 490 485, 414 436, 410 376 Z"/>
+      <path d="M 465 374 C 464 330, 540 292, 632 296 C 724 300, 772 340, 768 386 C 764 432, 688 462, 600 458 C 516 454, 468 418, 465 374 Z"/>
+      <path d="M 60 120 C 150 60, 260 70, 320 140"/>
+      <path d="M 900 660 C 990 600, 1100 620, 1140 690"/>
+    </svg>
+    <div class="hero-top" id="heroTop">
     <span class="kicker">Open to Software &amp; AI Engineering Roles</span>
     <h1>Kumar Prasanjeet.<br><em>Builder, not just a learner.</em></h1>
     <p class="lede">B.E. Computer Science (2025) working in AI/ML data operations — and shipping live
@@ -257,6 +273,7 @@
       <span><b>Based in</b> Muzaffarpur, Bihar</span>
       <span><b>Currently</b> Data Annotator @ Han Digital (Remote)</span>
       <span><b>Focus</b> AI engineering · web products</span>
+    </div>
     </div>
     <div class="giant-name" id="giantName">Kumar <span class="fill">Prasanjeet</span></div>
   </header>
@@ -492,13 +509,25 @@ if (renderer) {
   scene.add(ico2);
 
   // --- Norris kinetic scroll: scroll velocity speeds up the WebGL field ---
+  // --- Norris scroll-split: hero top lifts away, giant name sinks with a gold shadow ---
   let lastY = window.scrollY, speedBoost = 0;
+  const heroEl = document.querySelector('header');
+  const heroTop = document.getElementById('heroTop');
+  const giantName = document.getElementById('giantName');
   window.addEventListener('scroll', () => {
     const y = window.scrollY;
     speedBoost = Math.min(Math.abs(y - lastY) / 40, 3);
     lastY = y;
-    const g = document.getElementById('giantName');
-    if (g) g.style.transform = 'translateY(' + (y * 0.12) + 'px)';
+    if (reduceMotion) return;
+    const p = heroEl ? Math.min(y / Math.max(heroEl.offsetHeight, 1), 1) : 0;
+    if (heroTop) {
+      heroTop.style.transform = 'translateY(' + (-p * 56) + 'px) scale(' + (1 - p * 0.03) + ')';
+      heroTop.style.opacity = String(1 - p * 0.35);
+    }
+    if (giantName) {
+      giantName.style.transform = 'translateY(' + (y * 0.12 + p * 90) + 'px)';
+      giantName.style.textShadow = '0 ' + Math.round(p * 18) + 'px ' + Math.round(p * 34) + 'px rgba(201,162,39,' + (0.28 * p).toFixed(2) + ')';
+    }
   }, { passive: true });
 
   // --- Mouse parallax ---
