@@ -203,14 +203,14 @@
   .portrait{position:absolute; top:150px; right:0; width:280px; height:529px; z-index:1}
   .portrait img{position:absolute; left:0; width:100%; display:block; will-change:transform,filter}
   .portrait img:nth-child(1){top:0}
-  .portrait img:nth-child(2){top:33.333%}
-  .portrait img:nth-child(3){top:66.666%}
-  @media (max-width:1060px){ .portrait{width:220px; height:415px} }
+  .portrait img:nth-child(2){top:calc(33.333% - 1px)}
+  .portrait img:nth-child(3){top:calc(66.666% - 1px)}
+  @media (max-width:1060px){ .portrait{width:220px; height:415px} .hero-top{max-width:560px} }
   @media (max-width:860px){
     .portrait{position:relative; top:auto; right:auto; width:200px; height:378px; margin:30px auto 0}
   }
   /* Scroll-split hero: top block lifts away from the giant name on scroll */
-  .hero-top{position:relative; z-index:1; will-change:transform,opacity}
+  .hero-top{position:relative; z-index:1; will-change:transform,opacity; max-width:700px}
   /* Marquee ticker — kinetic strip, Norris-style */
   .ticker{
     border-top:1px solid rgba(201,162,39,.35); border-bottom:1px solid rgba(201,162,39,.35);
