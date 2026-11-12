@@ -182,6 +182,46 @@
     html{scroll-behavior:auto}
     .reveal{opacity:1; transform:none; transition:none}
   }
+
+  /* ---------- Norris-style graphics (Lando Norris / OFF+BRAND reference) ---------- */
+  /* Giant outlined name, like the oversized LANDO NORRIS wordmark on landonorris.com */
+  .giant-name{
+    font-family:'Archivo',sans-serif; font-weight:800; text-transform:uppercase;
+    font-size:clamp(3.4rem, 13.5vw, 10rem); line-height:.86; letter-spacing:-.02em;
+    color:transparent; -webkit-text-stroke:1.5px rgba(201,162,39,.38);
+    white-space:nowrap; overflow:hidden; user-select:none; margin:34px 0 0;
+    transition:color .4s ease; will-change:transform;
+  }
+  .giant-name:hover{color:rgba(201,162,39,.10)}
+  .giant-name .fill{color:var(--gold); -webkit-text-stroke:0}
+  /* Marquee ticker — kinetic strip, Norris-style */
+  .ticker{
+    border-top:1px solid rgba(201,162,39,.35); border-bottom:1px solid rgba(201,162,39,.35);
+    overflow:hidden; padding:12px 0; margin:44px 0 0; white-space:nowrap;
+    background:rgba(201,162,39,.06);
+  }
+  .ticker-track{display:inline-block; animation:tick 22s linear infinite; font-weight:800; letter-spacing:.14em; text-transform:uppercase; font-size:.92rem; color:var(--gold-soft)}
+  .ticker-track span{color:var(--gold)}
+  @keyframes tick{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  /* Stats strip — Norris career-stats analogue, Liam's real numbers only */
+  .stats{display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin:0 0 8px}
+  @media (max-width:720px){ .stats{grid-template-columns:repeat(2,1fr)} }
+  .stat{border:1px solid rgba(243,217,164,.16); border-radius:16px; padding:20px; background:rgba(20,48,79,.55)}
+  .stat b{display:block; font-family:'Playfair Display',serif; font-size:2.4rem; line-height:1; color:var(--gold)}
+  .stat span{color:#aeb9c6; font-size:.9rem}
+  /* Project ghost numbers + growing gold bar (Hall-of-Fame card feel) */
+  .card{position:relative; overflow:hidden}
+  .card::before{
+    content:""; position:absolute; top:0; left:0; height:3px; width:0;
+    background:var(--gold); transition:width .35s ease;
+  }
+  .card:hover::before{width:100%}
+  .ghost-num{
+    position:absolute; top:10px; right:16px; font-weight:800; font-size:3.2rem; line-height:1;
+    color:transparent; -webkit-text-stroke:1px rgba(201,162,39,.30); pointer-events:none;
+  }
+  h2{text-transform:uppercase; letter-spacing:.01em}
+  @media (prefers-reduced-motion: reduce){ .ticker-track{animation:none} }
 </style>
 </head>
 <body>
@@ -218,14 +258,24 @@
       <span><b>Currently</b> Data Annotator @ Han Digital (Remote)</span>
       <span><b>Focus</b> AI engineering · web products</span>
     </div>
+    <div class="giant-name" id="giantName">Kumar <span class="fill">Prasanjeet</span></div>
   </header>
+<div class="ticker" aria-hidden="true"><div class="ticker-track">BUILDER <span>◆</span> NOT JUST A LEARNER <span>◆</span> LIVE PRODUCTS <span>◆</span> AI / ML <span>◆</span> MUZAFFARPUR <span>◆</span> SHIPPED, NOT TUTORIALS <span>◆</span> BUILDER <span>◆</span> NOT JUST A LEARNER <span>◆</span> LIVE PRODUCTS <span>◆</span> AI / ML <span>◆</span> MUZAFFARPUR <span>◆</span> SHIPPED, NOT TUTORIALS <span>◆</span>&nbsp;</div></div>
+
 
   <section id="projects">
     <div class="sec-head"><span class="sec-num">01</span><h2>Projects</h2></div>
     <div class="rule"></div>
     <p class="sec-sub">Live products, not tutorials. Every project below is deployed and used by real people.</p>
+
+  <div class="stats reveal">
+    <div class="stat"><b><span class="count" data-n="2">0</span></b><span>Live products shipped</span></div>
+    <div class="stat"><b><span class="count" data-n="105">0</span></b><span>Menu items, Ghritam Cafe</span></div>
+    <div class="stat"><b><span class="count" data-n="101">0</span></b><span>Dish photos live</span></div>
+    <div class="stat"><b><span class="count" data-n="11">0</span></b><span>Cab routes, MTT</span></div>
+  </div>
     <div class="grid">
-      <article class="card wide reveal">
+      <article class="card wide reveal"><span class="ghost-num">01</span>
         <span class="tag tag-live">Live</span>
         <h3>The Ghritam Cafe — Digital Menu &amp; Direct Ordering
           <small>Family-run cafe, Mithanpura, Muzaffarpur</small></h3>
@@ -245,7 +295,7 @@
         </div>
       </article>
 
-      <article class="card reveal">
+      <article class="card reveal"><span class="ghost-num">02</span>
         <span class="tag tag-live">Live</span>
         <h3>Mithila Tour and Travels — Cab Booking
           <small>Bihar cab service</small></h3>
@@ -440,6 +490,16 @@ if (renderer) {
   ico2.position.set(-5.2, -1.6, -3);
   scene.add(ico2);
 
+  // --- Norris kinetic scroll: scroll velocity speeds up the WebGL field ---
+  let lastY = window.scrollY, speedBoost = 0;
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    speedBoost = Math.min(Math.abs(y - lastY) / 40, 3);
+    lastY = y;
+    const g = document.getElementById('giantName');
+    if (g) g.style.transform = 'translateY(' + (y * 0.12) + 'px)';
+  }, { passive: true });
+
   // --- Mouse parallax ---
   let mx = 0, my = 0, tx = 0, ty = 0;
   window.addEventListener('pointermove', (e) => {
@@ -461,12 +521,14 @@ if (renderer) {
   });
 
   function renderFrame(t) {
-    stars.rotation.y = t * 0.018;
-    stars.rotation.x = t * 0.006;
-    ico.rotation.y = t * 0.12;
-    ico.rotation.x = t * 0.07;
-    ico2.rotation.y = -t * 0.09;
-    ico2.rotation.z = t * 0.05;
+    speedBoost *= 0.94; // ease back to cruising speed
+    const k = 1 + speedBoost;
+    stars.rotation.y = t * 0.018 * k;
+    stars.rotation.x = t * 0.006 * k;
+    ico.rotation.y = t * 0.12 * k;
+    ico.rotation.x = t * 0.07 * k;
+    ico2.rotation.y = -t * 0.09 * k;
+    ico2.rotation.z = t * 0.05 * k;
     mx += (tx - mx) * 0.04;
     my += (ty - my) * 0.04;
     camera.position.x = mx;
@@ -504,6 +566,27 @@ if (renderer) {
       }
     });
   }, { threshold: 0.12 });
+  els.forEach(function (el) { io.observe(el); });
+})();
+</script>
+<script>
+// Count-up stats (Norris stats-strip analogue)
+(function () {
+  var els = document.querySelectorAll('.count');
+  if (!('IntersectionObserver' in window)) { els.forEach(function (el) { el.textContent = el.dataset.n; }); return; }
+  var io = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (!entry.isIntersecting) return;
+      var el = entry.target, target = parseInt(el.dataset.n, 10), start = null;
+      io.unobserve(el);
+      (function step(ts) {
+        if (!start) start = ts;
+        var p = Math.min((ts - start) / 900, 1);
+        el.textContent = Math.round(target * p);
+        if (p < 1) requestAnimationFrame(step);
+      })(performance.now());
+    });
+  }, { threshold: 0.4 });
   els.forEach(function (el) { io.observe(el); });
 })();
 </script>
