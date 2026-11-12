@@ -200,7 +200,13 @@
   .contours path:nth-child(even){stroke:rgba(243,217,164,.07)}
 
   /* Hero portrait — Liam's cutout, split into 3 slices for the Norris scroll-split */
-  .portrait{position:absolute; top:150px; right:0; width:280px; height:529px; z-index:1}
+  /* Dissolve + gold grade so the photo melts into the navy page instead of looking pasted on */
+  .portrait{position:absolute; top:150px; right:0; width:280px; height:529px; z-index:1;
+    -webkit-mask-image:radial-gradient(120% 92% at 50% 42%, #000 52%, transparent 97%);
+    mask-image:radial-gradient(120% 92% at 50% 42%, #000 52%, transparent 97%)}
+  .portrait::after{content:""; position:absolute; inset:0; pointer-events:none;
+    background:linear-gradient(180deg, rgba(201,162,39,.10) 0%, rgba(201,162,39,.04) 45%, rgba(7,21,38,.30) 100%);
+    mix-blend-mode:overlay}
   .portrait img{position:absolute; left:0; width:100%; display:block; will-change:transform,filter}
   .portrait img:nth-child(1){top:0}
   .portrait img:nth-child(2){top:calc(33.333% - 1px)}
